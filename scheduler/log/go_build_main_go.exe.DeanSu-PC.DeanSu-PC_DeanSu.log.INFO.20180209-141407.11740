@@ -1,0 +1,6 @@
+Log file created at: 2018/02/09 14:14:07
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0209 14:14:07.620596   11740 main.go:89] TaskID[f0d6c985-c604-45e9-985c-b0687465a24d]TaskFreq[10]TaskItems[[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 14:14:07.622097   11740 scheduler.go:234] task.VideoFileName:

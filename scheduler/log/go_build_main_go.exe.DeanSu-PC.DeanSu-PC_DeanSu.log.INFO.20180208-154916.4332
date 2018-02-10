@@ -1,0 +1,5 @@
+Log file created at: 2018/02/08 15:49:16
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0208 15:49:16.960938    4332 main.go:175] Happy birthday,%!(EXTRA string=John Smith 2)

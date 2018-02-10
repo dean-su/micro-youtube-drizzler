@@ -1,0 +1,14 @@
+Log file created at: 2018/02/09 15:03:19
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0209 15:03:19.223752    1712 main.go:89] TaskID[cfc25068-4fbe-44b8-bc12-84bd34f82788]TaskFreq[10]TaskItems[[{apistoragetest my_test_7800.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:03:49.092020    1712 main.go:89] TaskID[269b4bfc-6930-4919-977b-028291820048]TaskFreq[10]TaskItems[[{apistoragetest my_test_8270.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:04:19.016977    1712 main.go:89] TaskID[3c81bc72-d6f0-4c6f-ab7f-6eb5e01f27d7]TaskFreq[10]TaskItems[[{apistoragetest my_test_3032.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:04:49.097066    1712 main.go:89] TaskID[c9bf3900-9690-4a6c-bc82-2f65096ff674]TaskFreq[10]TaskItems[[{apistoragetest my_test_174.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:05:19.103411    1712 main.go:89] TaskID[0418875f-bb67-48ef-9ae5-b3b2ce39502f]TaskFreq[10]TaskItems[[{apistoragetest my_test_8130.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:05:48.951635    1712 main.go:89] TaskID[6941094b-f5bf-4f0c-9d1c-ca9b36cadd5e]TaskFreq[10]TaskItems[[{apistoragetest my_test_1842.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:06:19.107482    1712 main.go:89] TaskID[c497798a-b7ee-43e4-9ef1-fd212503f205]TaskFreq[10]TaskItems[[{apistoragetest my_test_7678.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:06:49.111832    1712 main.go:89] TaskID[38b52e8a-ab43-49f9-a9a9-ebb01a074bb7]TaskFreq[10]TaskItems[[{apistoragetest my_test_3862.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:07:19.115069    1712 main.go:89] TaskID[429b0b18-b6d4-4e46-b8dc-a40ee0a58efa]TaskFreq[10]TaskItems[[{apistoragetest my_test_6483.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 15:07:49.117906    1712 main.go:89] TaskID[19b54524-12ca-4c7a-a358-323472d67b76]TaskFreq[10]TaskItems[[{apistoragetest my_test_5001.mp4 hello youtube 21 GreaterCommons www.google.com}]]

@@ -1,0 +1,6 @@
+Log file created at: 2018/02/08 17:00:20
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0208 17:00:20.460240    9804 main.go:174] Happy birthday,%!(EXTRA string=John Smith 2)
+I0208 17:00:37.625957    9804 main.go:91] TaskID[5f079ea0-37e3-4995-b308-7a977cc43667]TaskFreq[10]TaskItems[[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}]]

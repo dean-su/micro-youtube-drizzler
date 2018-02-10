@@ -1,0 +1,24 @@
+Log file created at: 2018/02/09 09:02:00
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0209 09:02:00.861286   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:01.861350   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:02.861780   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:03.861907   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:04.862031   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:05.861507   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:05.861507   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:06.861838   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:07.862358   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:08.861590   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:09.861834   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:10.862204   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:11.861729   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:12.862110   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:13.861326   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:16.862359   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:21.862493   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:26.861797   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:31.861876   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)
+I0209 09:02:36.862723   11464 main.go:172] Happy birthday,%!(EXTRA string=John Smith 2)

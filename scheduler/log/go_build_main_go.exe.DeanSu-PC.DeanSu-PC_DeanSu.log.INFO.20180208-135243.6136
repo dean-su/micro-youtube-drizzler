@@ -1,0 +1,11 @@
+Log file created at: 2018/02/08 13:52:43
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0208 13:52:43.694842    6136 main.go:131] Happy birthday,%!(EXTRA string=John Smith 2)
+I0208 13:52:48.695689    6136 main.go:131] Happy birthday,%!(EXTRA string=John Smith 2)
+I0208 13:52:53.695908    6136 main.go:131] Happy birthday,%!(EXTRA string=John Smith 2)
+I0208 13:52:57.781792    6136 main.go:60] [sub][tasks_youtube] received message:[{"TaskID":"5fcada14-b9ee-41ed-ba27-2de505d75e12","TaskItems":[{"GCloudBucketname":"apistoragetest","GCloudFileName":"my_cute_boy.mp4","Title":"hello youtube","CategoryId":"21","Description":"GreaterCommons","CourseURL":"www.google.com"}],"TaskFreq":98}] |header[map[id:441]]
+I0208 13:52:58.143568    6136 main.go:52] [scheduler pub][download_tasks_youtube] pubbed message:[{"TaskID":"5fcada14-b9ee-41ed-ba27-2de505d75e12","TaskItems":[{"GCloudBucketname":"apistoragetest","GCloudFileName":"my_cute_boy.mp4","Title":"hello youtube","CategoryId":"21","Description":"GreaterCommons","CourseURL":"www.google.com"}],"TaskFreq":98}] Header[map[id:441]]
+I0208 13:52:58.695875    6136 main.go:131] Happy birthday,%!(EXTRA string=John Smith 2)
+I0208 13:53:03.695882    6136 main.go:131] Happy birthday,%!(EXTRA string=John Smith 2)

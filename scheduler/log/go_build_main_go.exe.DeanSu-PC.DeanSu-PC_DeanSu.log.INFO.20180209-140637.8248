@@ -1,0 +1,9 @@
+Log file created at: 2018/02/09 14:06:37
+Running on machine: DeanSu-PC
+Binary: Built with gc go1.9 for windows/amd64
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0209 14:06:37.659610    8248 main.go:89] TaskID[2f5cb433-c834-4bf8-af8e-4d39e4a4e398]TaskFreq[10]TaskItems[[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 14:06:48.625189    8248 main.go:76] [scheduler pub][download_tasks_youtube] pubbed message:[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}] Header[067d73ed-34a6-4f24-bb44-7a4cfcbb3cd5]
+I0209 14:07:07.658298    8248 main.go:89] TaskID[64f90d7b-2894-49e5-a859-c880fb7523d9]TaskFreq[10]TaskItems[[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}]]
+I0209 14:07:18.723433    8248 main.go:76] [scheduler pub][download_tasks_youtube] pubbed message:[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}] Header[722cb33e-4f1a-43cb-8c6d-e9e67ccaf1cb]
+I0209 14:07:37.762884    8248 main.go:89] TaskID[1e68f9bf-c0b6-4a7f-b63d-4641a9946c3f]TaskFreq[10]TaskItems[[{apistoragetest my_cute_boy.mp4 hello youtube 21 GreaterCommons www.google.com}]]
