@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-
+	"os"
 	"github.com/hashicorp/consul/api"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -68,4 +68,20 @@ func LoadJSONFromConsulKV(configKeyParameter string, cfg interface{}) interface{
 		log.Fatalf("Unable to parse JSON in Consul KV for key '%s': %s", configKey, err)
 	}
 	return cfg
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+	return false, err
 }

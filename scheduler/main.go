@@ -18,18 +18,11 @@ import (
 
 )
 
-type YouTubeVideo struct{
-	GCloudBucketName		string
-	GCloudFileName			string
-	Title					string
-	CategoryId				string
-	Description 			string
-	CourseURL	 			string
-}
+
 
 type TaskYoutube struct {
 	TaskID 			string
-	TaskItems 		[]YouTubeVideo
+	TaskItems 		[]storage.YouTubeVideo
 	TaskFreq        int
 }
 var (
@@ -60,7 +53,7 @@ func init()  {
 
 }
 
-func pubDownLoadTasks(pub YouTubeVideo) {
+func pubDownLoadTasks(pub storage.YouTubeVideo) {
 	data, _ := json.Marshal(pub)
 	taskID := uuid.Must(uuid.NewV4()).String()
 	msg := &broker.Message{
@@ -90,7 +83,7 @@ func sub() {
 
 		for _, v := range task.TaskItems {
 		// Start a task with arguments
-			if _, err := s.RunYoutubeAfter(time.Duration(task.TaskFreq)*time.Second, pubDownLoadTasks, v.GCloudFileName, v); err != nil {
+			if _, err := s.RunAfterYoutube(time.Duration(task.TaskFreq)*time.Second, pubDownLoadTasks, v, v); err != nil {
 				glog.Fatal(err)
 			}
 		}
@@ -124,8 +117,11 @@ func main() {
 	if err := b.Connect(); err != nil {
 		glog.Fatalf("Broker Connect error: %v", err)
 	}
+
 	db := storage.NewRedis("",redislib.DialOption{}, false)
+
 	s = scheduler.New(db)
+
 /*	dob, _ := time.Parse(DateLayout, time.Now().Format(DateLayout))
 	person := Person{
 		ID:          "123-456",

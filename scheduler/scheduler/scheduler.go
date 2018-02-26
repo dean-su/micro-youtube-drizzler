@@ -22,14 +22,7 @@ type Scheduler struct {
 	tasks        map[task.ID]*task.Task
 	taskStore    storeBridge
 }
-type YouTubeVideo struct{
-	GCloudBucketName		string
-	GCloudFileName			string
-	Title					string
-	CategoryId				string
-	Description 			string
-	CourseURL	 			string
-}
+
 // New will return a new instance of the Scheduler struct.
 func New(store storage.TaskStore) Scheduler {
 	funcRegistry := task.NewFuncRegistry()
@@ -53,26 +46,27 @@ func (scheduler *Scheduler) RunAt(time time.Time, function task.Function, params
 
 
 	task := task.New(funcMeta, params, "")
-
 	task.NextRun = time
-
 	scheduler.registerTask(task)
 	return task.Hash(), nil
 }
 
 // RunAt will schedule function to be executed once at the given time.
-func (scheduler *Scheduler) RunAtYoutube(time time.Time, function task.Function, videoFileName string, params ...task.Param) (task.ID, error) {
+func (scheduler *Scheduler) RunAtYoutube(time time.Time, function task.Function, videoFileMeta storage.YouTubeVideo, params ...task.Param) (task.ID, error) {
 	funcMeta, err := scheduler.funcRegistry.Add(function)
 	if err != nil {
 		return "", err
 	}
 
 
-	task := task.New(funcMeta, params, videoFileName)
-
+	task := task.New(funcMeta, params, videoFileMeta.GCloudFileName)
 	task.NextRun = time
 
 	scheduler.registerTask(task)
+
+	scheduler.taskStore.store.SetJobStatus(task.VideoFileName, "P")
+	scheduler.taskStore.store.AddVideoFileMeta(videoFileMeta)
+
 	return task.Hash(), nil
 }
 
@@ -82,8 +76,8 @@ func (scheduler *Scheduler) RunAfter(duration time.Duration, function task.Funct
 }
 
 // RunAfter executes function once after a specific duration has elapsed.
-func (scheduler *Scheduler) RunYoutubeAfter(duration time.Duration, function task.Function, videoFileName string, params ...task.Param, ) (task.ID, error) {
-	return scheduler.RunAtYoutube(time.Now().Add(duration), function, videoFileName, params...)
+func (scheduler *Scheduler) RunAfterYoutube(duration time.Duration, function task.Function, videoFileMeta storage.YouTubeVideo, params ...task.Param, ) (task.ID, error) {
+	return scheduler.RunAtYoutube(time.Now().Add(duration), function, videoFileMeta, params...)
 }
 
 // RunEvery will schedule function to be executed every time the duration has elapsed.
@@ -240,8 +234,6 @@ func (scheduler *Scheduler) runPending() {
 
 func (scheduler *Scheduler) registerTask(task *task.Task) {
 	_, _ = scheduler.funcRegistry.Add(task.Func)
-	if task.VideoFileName != "" {
-		scheduler.taskStore.store.AddJobStatus(task.VideoFileName)
-	}
+
 	scheduler.tasks[task.Hash()] = task
 }

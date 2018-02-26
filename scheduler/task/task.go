@@ -28,6 +28,8 @@ type Task struct {
 	VideoFileName 	string
 }
 
+
+
 // New returns an instance of task
 func New(function FunctionMeta, params []Param, videoFileName string) *Task {
 	return &Task{

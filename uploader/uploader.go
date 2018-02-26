@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"hash/fnv"
 
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -22,21 +21,48 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
-
+	"github.com/micro-youtube-drizzler/config"
+	"gitlab.com/greatercommons/youtube-drizzler/scheduler/storage"
 	"io/ioutil"
+	"github.com/golang/glog"
+	redislib "github.com/garyburd/redigo/redis"
 )
 var (
-	clientID     = "728281615648-isjuc106hi6d354tsbe46hsiqm604a3f.apps.googleusercontent.com"
 	cacheToken = flag.Bool("cachetoken", true, "cache the OAuth 2.0 token")
-	secret     = "qrjkNv4ZociBRAuqOENTi-D-"
-
 	filename = "./videofiles/my_cute_boy.mp4"
+	consulPath = "kv/:youtube-drizzler/config"
+	cfg youtubeDrizzlerConfig
 )
 
+type youtubeDrizzlerConfig struct {
+	websiteTasksTopic 			string	`json:"websiteTasksTopic"`
+	downloadWebsiteTasksTopic 	string	`json:"downloadWebsiteTasksTopic"`
+	youtubeDrizzlerProjectID 	string	`json:"youtubeDrizzlerProjectID"`
+	videoFilesPath				string	`json:"videoFilesPath"`
+	videoFilesLink				string	`json:"videoFilesLink"`
+	clientID					string	`json:"clientID"`
+	clientSecret				string	`json:"clientSecret"`
+}
+
+func init()  {
+
+	var c youtubeDrizzlerConfig
+	cf := config.LoadJSONFromConsulKV(consulPath, c)
+	val := cf.(map[string]interface {})
+
+	cfg.youtubeDrizzlerProjectID = val["youtubeDrizzlerProjectID"].(string)
+	cfg.videoFilesPath = val["videoFilesPath"].(string)
+	cfg.videoFilesLink = val["videoFilesLink"].(string)
+	cfg.clientID = val["clientID"].(string)
+	cfg.clientSecret = val["clientSecret"].(string)
+
+}
+
 func main() {
+	flag.Parse()
 	config := &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: secret,
+		ClientID:     cfg.clientID,
+		ClientSecret: cfg.clientSecret,
 		Endpoint:     google.Endpoint,
 		Scopes:       []string{youtube.YoutubeUploadScope},
 	}
@@ -47,44 +73,73 @@ func main() {
 
 	service, err := youtube.New(client)
 	if err != nil {
-		log.Fatalf("Unable to create YouTube service: %v", err)
+		glog.Fatalf("Unable to create YouTube service: %v", err)
 	}
+	db := storage.NewRedis("",redislib.DialOption{}, false)
+	tick := time.NewTicker(time.Second*60)
 
-	upload := &youtube.Video{
-		Snippet: &youtube.VideoSnippet{
-			Title:       "Test Title",
-			Description: "Test Description", // can not use non-alpha-numeric characters
-			CategoryId:  "22",
-		},
-		//Status: &youtube.VideoStatus{PrivacyStatus: "unlisted"},
-		Status: &youtube.VideoStatus{
-			PrivacyStatus: "public",
-			PublicStatsViewable: true,
-		},
-	}
+	for _ = range tick.C {
+		videoFiles, err := ListDir(cfg.videoFilesLink, ".mp4")
+		if err != nil {
 
-	// The API returns a 400 Bad Request response if tags is an empty string.
-	upload.Snippet.Tags = []string{"test", "upload", "api"}
+		}
+		for _, videoFile := range videoFiles {
 
-	call := service.Videos.Insert("snippet,status", upload)
-	files, err := ListDir("./videofiles",".mp4")
-	fmt.Println("files:", files)
+			glog.Infof("process videoFile[%v]\n", videoFile)
+			fileName := filepath.Base(videoFile)
+			statusJob, err := db.GetJobStatus(fileName)
+			if err != nil {
+				glog.Fatalf("Error GetJobStatus Redis %v: %v\n", fileName, err)
+			}
+			if statusJob == "U" {
+				glog.Errorf("Error Duplicate video ID %v\n", fileName)
+				continue
+			}
 
-	file, err := os.Open(filename)
+			videoFileMeta, err := db.GetVideoMeta(fileName)
+			glog.Infof("[%v][%v]\n", fileName, videoFileMeta)
 
-	if err != nil {
-		log.Fatalf("Error opening %v: %v", filename, err)
-	}
+			if err != nil {
+				glog.Errorf("Error Get Redis %v: %v\n", fileName, err)
+			}
+			file, err := os.Open(videoFile)
+			if err != nil {
+				glog.Fatalf("Error opening %v: %v", videoFile, err)
+			}
 
-	response, err := call.Media(file).Do()
-	if err != nil {
-		log.Fatalf("Error making YouTube API call: %v", err)
-	}
-	fmt.Printf("Upload successful! Video ID: %v\n", response.Id)
-	file.Close()
-	del := os.Remove(filename);
-	if del != nil {
-		log.Fatalf("Error : %v", err)
+			upload := &youtube.Video{
+				Snippet: &youtube.VideoSnippet{
+					Title:       videoFileMeta.Title,
+					Description: videoFileMeta.Description, // can not use non-alpha-numeric characters
+					CategoryId:  videoFileMeta.CategoryId,
+				},
+
+				Status: &youtube.VideoStatus{
+					PrivacyStatus:       "public",
+					PublicStatsViewable: true,
+				},
+			}
+
+			// The API returns a 400 Bad Request response if tags is an empty string.
+			upload.Snippet.Tags = []string{"test", "upload", "api"}
+
+			call := service.Videos.Insert("snippet,status", upload)
+
+			response, err := call.Media(file).Do()
+			if err != nil {
+				glog.Fatalf("Error making YouTube API call: %v", err)
+			}
+			fmt.Printf("Upload successful! Video ID: %v\n", response.Id)
+			file.Close()
+			err = db.SetJobStatus(fileName, "U")
+			if err != nil {
+				glog.Fatalf("Error set job status for [%v][%v]", fileName, err)
+			}
+			del := os.Remove(videoFile)
+			if del != nil {
+				glog.Errorf("Error del link file : %v", err)
+			}
+		}
 	}
 }
 
@@ -97,13 +152,13 @@ func ListDir(dirPth string, suffix string) (files []string, err error) {
 	}
 
 	PthSep := string(os.PathSeparator)
-	suffix = strings.ToUpper(suffix) //忽略后缀匹配的大小写
+	suffix = strings.ToUpper(suffix)
 
 	for _, fi := range dir {
-		if fi.IsDir() { // 忽略目录
+		if fi.IsDir() {
 			continue
 		}
-		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) { //匹配文件
+		if strings.HasSuffix(strings.ToUpper(fi.Name()), suffix) {
 			files = append(files, dirPth+PthSep+fi.Name())
 		}
 	}
@@ -117,7 +172,7 @@ func newOAuthClient(ctx context.Context, config *oauth2.Config) *http.Client {
 		token = tokenFromWeb(ctx, config)
 		saveToken(cacheFile, token)
 	} else {
-		log.Printf("Using cached token %#v from %q", token, cacheFile)
+		glog.Infof("Using cached token %#v from %q", token, cacheFile)
 	}
 
 	return config.Client(ctx, token)
@@ -132,7 +187,7 @@ func tokenFromWeb(ctx context.Context, config *oauth2.Config) *oauth2.Token {
 			return
 		}
 		if req.FormValue("state") != randState {
-			log.Printf("State doesn't match: req = %#v", req)
+			glog.Errorf("State doesn't match: req = %#v", req)
 			http.Error(rw, "", 500)
 			return
 		}
@@ -142,7 +197,7 @@ func tokenFromWeb(ctx context.Context, config *oauth2.Config) *oauth2.Token {
 			ch <- code
 			return
 		}
-		log.Printf("no code")
+
 		http.Error(rw, "", 500)
 	}))
 	defer ts.Close()
@@ -150,13 +205,13 @@ func tokenFromWeb(ctx context.Context, config *oauth2.Config) *oauth2.Token {
 	config.RedirectURL = ts.URL
 	authURL := config.AuthCodeURL(randState)
 	go openURL(authURL)
-	log.Printf("Authorize this app at: %s", authURL)
+	glog.Infof("Authorize this app at: %s", authURL)
 	code := <-ch
-	log.Printf("Got code: %s", code)
+	glog.Infof("Got code: %s", code)
 
 	token, err := config.Exchange(ctx, code)
 	if err != nil {
-		log.Fatalf("Token exchange error: %v", err)
+		glog.Fatalf("Token exchange error: %v", err)
 	}
 	return token
 }
@@ -169,7 +224,7 @@ func openURL(url string) {
 			return
 		}
 	}
-	log.Printf("Error opening URL in browser.")
+	glog.Error("Error opening URL in browser.")
 }
 func tokenCacheFile(config *oauth2.Config) string {
 	hash := fnv.New32a()
@@ -186,7 +241,7 @@ func osUserCacheDir() string {
 	case "linux", "freebsd":
 		return filepath.Join(os.Getenv("HOME"), ".cache")
 	}
-	log.Printf("TODO: osUserCacheDir on GOOS %q", runtime.GOOS)
+
 	return "."
 }
 func tokenFromFile(file string) (*oauth2.Token, error) {
@@ -205,7 +260,7 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 func saveToken(file string, token *oauth2.Token) {
 	f, err := os.Create(file)
 	if err != nil {
-		log.Printf("Warning: failed to cache oauth token: %v", err)
+		glog.Errorf("Warning: failed to cache oauth token: %v", err)
 		return
 	}
 	defer f.Close()

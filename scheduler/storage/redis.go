@@ -1,14 +1,16 @@
 package storage
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
+	"github.com/golang/glog"
+	"fmt"
 )
 
 var (
 	// HashKey is the hash key where jobs are persisted.
 	HashKey = "youtubejobs"
 	HashVideoKey = "videoStatus"
+	HashVideoMeta = "videoMeta"
 )
 
 // DB is concrete implementation of the JobDB interface, that uses Redis for persistence.
@@ -30,7 +32,7 @@ func NewRedis(address string, password redis.DialOption, sendPassword bool) *DB 
 		conn, err = redis.Dial("tcp", address)
 	}
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	return &DB{
 		conn: conn,
@@ -71,6 +73,18 @@ func (d DB) Get(id string) (TaskAttributes, error) {
 	j , err := NewFromBytes(val.([]byte))
 	return *j, err
 }
+// Get returns a video file Attributes.
+func (d DB) GetVideoMeta(fileName string) (YouTubeVideo, error) {
+	val, err := d.conn.Do("HGET", HashVideoMeta, fileName)
+	if err != nil {
+		return YouTubeVideo{}, err
+	}
+	if val == nil {
+		return YouTubeVideo{}, ErrJobNotFound(fileName)
+	}
+	j , err := NewVideoMetaFromBytes(val.([]byte))
+	return *j, err
+}
 
 // Delete deletes a persisted Job.
 func (d DB) Remove(task TaskAttributes) error {
@@ -97,9 +111,39 @@ func (d DB) Add(j TaskAttributes) error {
 	return nil
 }
 // Save persists a Job Status.
-func (d DB) AddJobStatus(s string) error {
+func (d DB) SetJobStatus(s string, st string) error {
 
-	_, err := d.conn.Do("HSET", HashVideoKey, s, "P")
+	_, err := d.conn.Do("HSET", HashVideoKey, s, st)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+// Get a Job Status.
+func (d DB) GetJobStatus(s string) (string, error) {
+
+/*	val, err := d.conn.Do("HGET", HashVideoKey, s)
+	if err != nil {
+		return "", err
+	}*/
+	val, err := redis.String(d.conn.Do("HGET", HashVideoKey, s))
+
+	if err != nil {
+		glog.Errorf("Can not get job status by %v", s)
+		err = fmt.Errorf("Can not get job status by %v", s)
+		return "", err
+	}
+
+	return val, nil
+}
+
+// Save persists a Job Video File Meta.
+func (d DB) AddVideoFileMeta(y YouTubeVideo) error {
+	bytes, err := y.Bytes()
+	if err != nil {
+		return err
+	}
+	_, err = d.conn.Do("HSET", HashVideoMeta, y.GCloudFileName, bytes)
 	if err != nil {
 		return err
 	}

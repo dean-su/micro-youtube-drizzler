@@ -21,13 +21,22 @@ type TaskAttributes struct {
 	Params      string
 	VideoFileName	string
 }
+type YouTubeVideo struct{
+	GCloudBucketName		string
+	GCloudFileName			string
+	Title					string
+	CategoryId				string
+	Description 			string
+	CourseURL	 			string
+}
 
 // TaskStore is the interface to implement when adding custom task storage.
 type TaskStore interface {
 	Add(TaskAttributes) error
 
-	AddJobStatus(string) error
-
+	SetJobStatus(string, string) error
+	AddVideoFileMeta(YouTubeVideo) error
+	GetJobStatus(string) (string, error)
 	Fetch() ([]TaskAttributes, error)
 
 	Remove(TaskAttributes) error
@@ -44,11 +53,31 @@ func NewFromBytes(b []byte) (*TaskAttributes, error) {
 
 	return j, nil
 }
+func NewVideoMetaFromBytes(b []byte) (*YouTubeVideo, error) {
+	y := &YouTubeVideo{}
+
+	buf := bytes.NewBuffer(b)
+	err := gob.NewDecoder(buf).Decode(&y)
+	if err != nil {
+		return nil, err
+	}
+
+	return y, nil
+}
 // Bytes returns the byte representation of the Job.
 func (j TaskAttributes) Bytes() ([]byte, error) {
 	buff := new(bytes.Buffer)
 	enc := gob.NewEncoder(buff)
 	err := enc.Encode(j)
+	if err != nil {
+		return nil, err
+	}
+	return buff.Bytes(), nil
+}
+func (y YouTubeVideo) Bytes() ([]byte, error) {
+	buff := new(bytes.Buffer)
+	enc := gob.NewEncoder(buff)
+	err := enc.Encode(y)
 	if err != nil {
 		return nil, err
 	}
