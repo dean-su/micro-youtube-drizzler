@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package download;
+
+service Download {
+  rpc SetDownloadTask(Request) returns (Result);
+}
+
+message Request {
+  string GCloudBucketName = 1;
+  string GCloudFileName = 2;
+  string Title = 3;
+  string CategoryId	= 4;
+  string Description = 5;
+  string CourseURL = 6;
+}
+
+message Result {
+  string AckResult = 1;
+}
+
